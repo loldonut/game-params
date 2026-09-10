@@ -9,6 +9,9 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,7 +19,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build
-      run: cargo build --release --verbose
+      run: cargo build --release
 
     - name: Run tests
       run: cargo test --verbose
@@ -34,5 +37,11 @@ jobs:
         name: game-params
         path: ./target/release/game-params
     - name: Publish built binary to GitHub releases
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - run: |
-        gh release create prerelease ./target/release/game-params --prerelease --title "Binary builds"
+        gh release create prerelease ./target/release/game-params \
+          --prerelease \
+          --title "Binary builds" \
+          --generate-notes \
+          --clobber
