@@ -6,7 +6,7 @@ use serde::Deserialize;
 pub struct Config {
     pub flags: Option<Vec<String>>,
     pub env: Option<HashMap<String, String>>,
-    pub gamescope: Gamescope,
+    pub gamescope: Option<Gamescope>,
     #[serde(rename = "dll-overrides")]
     pub dll_overrides: Option<HashMap<String, String>>
 }
@@ -36,7 +36,7 @@ fn parse_gs_params(gs: &Gamescope) -> String {
 
     if gs.width.is_some() && gs.height.is_some() {
         let width = gs.width.as_ref().unwrap();
-        let height = gs.width.as_ref().unwrap();
+        let height = gs.height.as_ref().unwrap();
 
         let video_size = format!("-w {} -h {}", width, height);
         params.push(video_size);
@@ -63,25 +63,33 @@ fn parse_gs_params(gs: &Gamescope) -> String {
 
 pub fn parse_params(config: &Config) -> String {
     let env: &Option<HashMap<String, String>> = &config.env;
-    let gs: &Gamescope = &config.gamescope;
+    let gs: &Option<Gamescope> = &config.gamescope;
     let flags: &Option<Vec<String>> = &config.flags;
     let dll_overrides: &Option<HashMap<String, String>> = &config.dll_overrides;
+    let mut add_command = false;
 
     let mut params: Vec<String> = vec![];
-    let gs_params = parse_gs_params(gs);
 
-    if !dll_overrides.as_ref().unwrap().is_empty() {
+    if dll_overrides.is_some() && !dll_overrides.as_ref().unwrap().is_empty() {
         let overrides = parse_env(dll_overrides.as_ref().unwrap());
         params.push(format!("WINEDLLOVERRIDES=\"{}\"", overrides.join(";")));
     }
 
-    if !env.as_ref().unwrap().is_empty() {
+    if env.is_some() && !env.as_ref().unwrap().is_empty() {
         let e = parse_env(env.as_ref().unwrap());
         params.push(e.join(" "));
+        add_command = true;
     }
 
-    params.push(gs_params);
-    params.push("%command%".to_string());
+    if gs.is_some() {
+        let gs_params = parse_gs_params(gs.as_ref().unwrap());
+        params.push(gs_params);
+        add_command = true;
+    }
+
+    if add_command {
+        params.push("%command%".to_string());
+    }
 
     if flags.is_some() {
         params.push(flags.as_ref().unwrap().join(" "));
