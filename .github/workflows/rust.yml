@@ -33,6 +33,8 @@ jobs:
         git tag -f prerelease
         git push -f origin prerelease
 
+        gh release delete prerelease --yes || true
+
         # Create or overwrite the pre-release
         gh release create prerelease ./target/release/game-params \
           --prerelease \
