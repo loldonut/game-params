@@ -34,10 +34,18 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
 
+    - name: Test
+      run: echo ${{ matrix.BUILD_TARGET }}
+
     - name: Publish built binary to GitHub releases
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        TARGET_ARCH=$(rustc -Vv | grep host | cut -d ' ' -f 2)
+        ARCHIVE_NAME="game-params-${TARGET_ARCH}.tar.gz"
+
+        tar -czf "$ARCHIVE_NAME" -C target/release game-params
+
         # Force-update the Git tag to point to the current commit
         git tag -f prerelease
         git push -f origin prerelease
@@ -45,7 +53,7 @@ jobs:
         gh release delete prerelease --yes || true
 
         # Create or overwrite the pre-release
-        gh release create prerelease ./target/release/game-params \
+        gh release create prerelease "./$ARCHIVE_NAME" \
           --prerelease \
           --title "Binary builds" \
           --generate-notes
