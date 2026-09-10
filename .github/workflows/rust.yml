@@ -37,6 +37,5 @@ jobs:
         gh release create prerelease ./target/release/game-params \
           --prerelease \
           --title "Binary builds" \
-          --generate-notes \
-          --clobber
+          --generate-notes
 
