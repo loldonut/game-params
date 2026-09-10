@@ -35,4 +35,4 @@ jobs:
         path: ./target/release/game-params
     - name: Publish built binary to GitHub releases
     - run: |
-      gh release create prerelease --generate-notes ./target/release/game-params --prerelease --title "Binary builds"
+      gh release create prerelease ./target/release/game-params --prerelease --title "Binary builds"
