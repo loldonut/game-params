@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --release --verbose
 
     - name: Run tests
       run: cargo test --verbose
@@ -26,4 +26,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: game-params
-        path: target/${{ matrix.BUILD_TARGET }}/game-params
+        path: target/release/game-params
