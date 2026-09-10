@@ -2,13 +2,16 @@ use std::collections::HashMap;
 
 use serde::Deserialize;
 
+type VecString = Vec<String>;
+type HashMapStrings = HashMap<String, String>;
+
 #[derive(Debug, Deserialize)]
 pub struct Config {
-    pub flags: Option<Vec<String>>,
-    pub env: Option<HashMap<String, String>>,
+    pub flags: Option<VecString>,
+    pub env: Option<HashMapStrings>,
     pub gamescope: Option<Gamescope>,
     #[serde(rename = "dll-overrides")]
-    pub dll_overrides: Option<HashMap<String, String>>
+    pub dll_overrides: Option<HashMapStrings>
 }
 
 #[derive(Debug, Deserialize)]
@@ -17,7 +20,7 @@ pub struct Gamescope {
     height: Option<u32>,
     scaler: Option<String>,
     fullscreen: Option<bool>,
-    flags: Option<Vec<String>>
+    flags: Option<VecString>
 }
 
 fn parse_env(hm: &HashMap<String, String>) -> Vec<String> {
@@ -31,7 +34,7 @@ fn parse_env(hm: &HashMap<String, String>) -> Vec<String> {
 }
 
 fn parse_gs_params(gs: &Gamescope) -> String {
-    let mut params: Vec<String> = vec!["LD_PRELOAD= gamescope".to_string()];
+    let mut params: VecString = vec!["LD_PRELOAD= gamescope".to_string()];
     let env_preload = "-- env LD_PRELOAD=\"$LD_PRELOAD\"".to_string();
 
     if gs.width.is_some() && gs.height.is_some() {
@@ -62,10 +65,10 @@ fn parse_gs_params(gs: &Gamescope) -> String {
 }
 
 pub fn parse_params(config: &Config) -> String {
-    let env: &Option<HashMap<String, String>> = &config.env;
+    let env: &Option<HashMapStrings> = &config.env;
     let gs: &Option<Gamescope> = &config.gamescope;
-    let flags: &Option<Vec<String>> = &config.flags;
-    let dll_overrides: &Option<HashMap<String, String>> = &config.dll_overrides;
+    let flags: &Option<VecString> = &config.flags;
+    let dll_overrides: &Option<HashMapStrings> = &config.dll_overrides;
     let mut add_command = false;
 
     let mut params: Vec<String> = vec![];
