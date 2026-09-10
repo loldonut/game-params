@@ -20,3 +20,17 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+    - name: Upload release artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: game-params
+        path: target/${{ matrix.BUILD_TARGET }}/game-params
+    - uses: actions/checkout@v6
+    - name: Download release artifact
+      uses: actions/download-artifact@v5
+      with:
+        name: game-params
+        path: ./game-params
+    - name: Publish built binary to GitHub releases
+    - run: |
+      gh release create --generate-notes ./game-params/game-params#game-params
