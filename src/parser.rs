@@ -13,11 +13,11 @@ pub struct Config {
 
 #[derive(Debug, Deserialize)]
 pub struct Gamescope {
-    width: u32,
-    height: u32,
+    width: Option<u32>,
+    height: Option<u32>,
     scaler: Option<String>,
     fullscreen: Option<bool>,
-    flags: Option<Vec<String>>,
+    flags: Option<Vec<String>>
 }
 
 fn parse_env(hm: &HashMap<String, String>) -> Vec<String> {
@@ -32,11 +32,15 @@ fn parse_env(hm: &HashMap<String, String>) -> Vec<String> {
 
 fn parse_gs_params(gs: &Gamescope) -> String {
     let mut params: Vec<String> = vec!["LD_PRELOAD= gamescope".to_string()];
-
-    let video_size = format!("-w {} -h {}", gs.width, gs.height);
     let env_preload = "-- env LD_PRELOAD=\"$LD_PRELOAD\"".to_string();
 
-    params.push(video_size);
+    if gs.width.is_some() && gs.height.is_some() {
+        let width = gs.width.as_ref().unwrap();
+        let height = gs.width.as_ref().unwrap();
+
+        let video_size = format!("-w {} -h {}", width, height);
+        params.push(video_size);
+    }
 
     if gs.scaler.is_some() {
         let scaler = format!("-S {}", gs.scaler.as_ref().unwrap());
